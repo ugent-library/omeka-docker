@@ -1,0 +1,10 @@
+{
+    auto_https disable_redirects
+}
+
+omeka.box:80, :4000 {
+    root * /var/www
+    php_fastcgi app:9000
+    file_server
+    log
+}

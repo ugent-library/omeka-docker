@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  app:
+    container_name: app
+    image: omeka/php:8.1.17
+    build: .
+    restart: unless-stopped
+    user: 1000:1000
+    tty: true
+    environment:
+      PHP_OPCACHE_ENABLE: 0
+    volumes:
+      - ./:/var/www
+    ports:
+      - 9000:9000
+    networks:
+      - omeka_network
+
+  webserver:
+    container_name: webserver
+    image: caddy
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+      - ./docker-config/caddy/Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - 4000:4000
+      - 80:80
+      - 443:443
+    networks:
+      - omeka_network
+
+  db:
+    container_name: db
+    image: mariadb:11.1.2
+    environment:
+      MARIADB_USER: omeka
+      MARIADB_PASSWORD: omeka
+      MARIADB_ROOT_PASSWORD: omeka
+      MARIADB_DATABASE: omeka
+    networks:
+      - omeka_network
+
+networks:
+  omeka_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
